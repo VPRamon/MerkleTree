@@ -3,6 +3,7 @@ import sys, os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 from src.mtree import Mtree
+from tests.test_utils import verify_hash
 import pprint
 
 from hashlib import sha256
@@ -58,23 +59,12 @@ def test_construct_4_docs_mtree(setup_test):
 
     """ -- HASH LEVEL 1 --
     """
-    NODE_1_0 = bytes(( PREFIX_NODE + HASH_DOC_0 + HASH_DOC_1 ).encode('utf-8'))
-    NODE_1_1 = bytes(( PREFIX_NODE + HASH_DOC_2 + HASH_DOC_3 ).encode('utf-8'))
-
     # Hash Node (1,0) which is concatenation of hashed doc0 & hashed doc1
-    HASH_NODE_1_0 = sha256( NODE_1_0 ).hexdigest()
-    assert tree.tree[(1,0)].getHash() == HASH_NODE_1_0
-
+    HASH_NODE_1_0 = verify_hash(HASH_DOC_0, HASH_DOC_1, tree.tree[(1,0)].getHash() )
 
     # Hash Node (1,1) which is concatenation of hashed doc2 & hashed doc3
-    HASH_NODE_1_1 = sha256( NODE_1_1 ).hexdigest()
-    assert tree.tree[(1,1)].getHash() == HASH_NODE_1_1
-
+    HASH_NODE_1_1 = verify_hash(HASH_DOC_2, HASH_DOC_3, tree.tree[(1,1)].getHash() )
 
     """ -- HASH LEVEL 2 (root) --
     """
-    NODE_2_0 = bytes(( PREFIX_NODE + HASH_NODE_1_0 + HASH_NODE_1_1 ).encode('utf-8'))
-
-    # Hash Node (2,0) which is concatenation of hashed node(1,0) & hashed node(1,1)
-    HASH_NODE_2_0 = sha256( NODE_2_0 ).hexdigest()
-    assert tree.tree[(2,0)].getHash() == HASH_NODE_2_0
+    HASH_NODE_2_0 = verify_hash(HASH_NODE_1_0, HASH_NODE_1_1, tree.tree[(2,0)].getHash() )

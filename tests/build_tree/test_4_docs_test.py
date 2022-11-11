@@ -26,12 +26,11 @@ def test_construct_4_docs_mtree(setup_test):
     tree = Mtree()
     tree.construct("documents")
 
-    '''
+    ''' Display Tree
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(tree.tree)
     tree.draw()
     '''
-
 
     """ -- HASH LEVEL 0 --
     """
@@ -67,7 +66,7 @@ def test_construct_4_docs_mtree(setup_test):
     assert tree.tree[(1,0)].getHash() == HASH_NODE_1_0
 
 
-    # Hash Node (1,1) which is concatenation of hashed doc1 & hashed doc2
+    # Hash Node (1,1) which is concatenation of hashed doc2 & hashed doc3
     HASH_NODE_1_1 = sha256( NODE_1_1 ).hexdigest()
     assert tree.tree[(1,1)].getHash() == HASH_NODE_1_1
 

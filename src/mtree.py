@@ -1,4 +1,5 @@
 import src.utils.utils as utils
+from src.mnode import Mnode
 
 class Mtree():
     def __init__(self):
@@ -20,8 +21,8 @@ class Mtree():
         # Get leaf nodes
         for idx, doc in enumerate(utils.getAllDocuments(path)):
             node_name = (0, idx)
-            hash_val = utils.digestDoc(doc, prefix=self.doc_prefix)
-            self.tree[node_name] = Mnode(hash_val)
+            hash_ = utils.digestDoc(doc, prefix=self.doc_prefix)
+            self.tree[node_name] = Mnode(hash_)
             self.doc2node[doc] = self.tree[node_name]
 
         # Build tree bottom-up
@@ -52,23 +53,50 @@ class Mtree():
         self.root = self.tree[(lvl-1, 0)]
 
     def addDocument(self, path, content):
-        docName = self.num_lvls
-
-        f = open(docName+".dat", "w")
+        id_ = self.num_leaves
+        docName = 'doc'+str(id_)+'.dat'
+        f = open(f"documents/{docName}", "w")
         f.write(content)
         f.close()
 
-        n_left = self.root
+        # TODO: add document in tree
+        hash_ = utils.digest(content, self.doc_prefix)
+        node = Mnode(hash_)
+        self.tree[(0, self.num_leaves)] = node
 
-        #if self.num_lvls == potencia de 2:
-        #   add to root
-        #else
-            #traverse right until No node found
-            # add node
-            # recompute parent hash until root
+        depth = utils.getDepth(self.num_leaves)
+        n_nodes = self.num_leaves
+        lvl = 0
 
+        while( lvl <= depth ):
+            print("LEVEL: ", lvl)
+            print("N_NODES: ", n_nodes)
 
-        self.num_lvls += 1
+            if(n_nodes % 2):
+                sibling = self.tree[(lvl, n_nodes-1)]
+                parent = sibling.getParent()
+                if(parent):
+                    parent.setRightChild(node)
+                else:
+                    parent = Mnode.fromChildNodes(sibling, node, self.node_prefix)
+                    sibling.setParent(parent)
+                    self.tree[(lvl+1, 0)] = parent
+                    self.root = parent
+
+                lvl += 1
+                n_nodes //= 2
+
+            else:
+                parent = Mnode.fromChildNode(node)
+                node.setParent(parent)
+                lvl += 1
+                n_nodes //= 2
+                self.tree[(lvl, n_nodes)] = parent
+                
+
+            node = parent
+
+        self.num_leaves += 1
 
 
     def modifyDocument(self, doc, new_content):
@@ -117,7 +145,7 @@ class Mtree():
 
         return res
 
-    
+
     """
     REPRESENTATIONS
     """
@@ -149,61 +177,3 @@ class Mtree():
 
     def draw(self):
         self.draw_branch(self.root, 0)
-
-
-class Mnode():
-    def __init__(self, _hash, parent=None, left=None, right=None):
-        self.__hash = _hash
-        self.__parent = parent
-        self.__left = left
-        self.__right = right
-
-    @classmethod
-    def fromChildNodes(cls, n1, n2, prefix=None):
-        hash1 = n1.getHash()
-        hash2 = n2.getHash()
-
-        hash_val = utils.digest(hash1+hash2, prefix)
-        return cls(hash_val, parent=None, left=n1, right=n2)
-
-    @classmethod
-    def fromChildNode(cls, n1):
-        hash_val = n1.getHash()
-
-        return cls(hash_val, parent=None, left=n1, right=None)
-
-    def setHash(self, _hash):
-        self.__hash = _hash
-
-    def getHash(self):
-        return self.__hash
-
-    def setParent(self, parent):
-        self.__parent = parent
-
-    def getParent(self):
-        return self.__parent
-
-    def getRightChild(self):
-        return self.__right
-
-    def setRightChild(self, right):
-        self.__right = right
-
-    def getLeftChild(self):
-        return self.__left
-
-    def setLeftChild(self, left):
-        self.__left = left
-
-    def recomputeHash(self, prefix):
-        if self.getRightChild() is None:
-            self.setHash(self.getLeftChild().getHash())
-        else:    
-            hash1 = self.getLeftChild().getHash()
-            hash2 = self.getRightChild().getHash()
-
-            hash_val = utils.digest(hash1+hash2, prefix)
-            self.setHash(hash_val)
-
-    

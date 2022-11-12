@@ -3,6 +3,8 @@ import sys, os
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
 from src.mtree import Mtree
+
+from tests.test_utils import verify_hash
 from tests.build_tree.test_4_docs_test import validate_4_docs_mtree
 
 import pprint
@@ -32,7 +34,7 @@ def validate_6_docs_mtree(docs, mtree):
     assert mtree.tree[(0,4)].getHash() == HASH_DOC_4
 
     # Hash document 5
-    HASH_DOC_5 = sha256( DOC_5 ).hexdigest()
+    HASH_DOC_5 = sha256( docs[5] ).hexdigest()
     assert mtree.tree[(0,5)].getHash() == HASH_DOC_5
 
 
@@ -63,9 +65,9 @@ def test_construct_6_docs_mtree(setup_test):
     mtree.construct("documents")
 
     #''' Display Tree
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(tree.tree)
-    mtree.draw()
+    #pp = pprint.PrettyPrinter(indent=4)
+    #pp.pprint(mtree.tree)
+    #mtree.draw()
     #'''
 
     """ -- HASH LEVEL 0 --

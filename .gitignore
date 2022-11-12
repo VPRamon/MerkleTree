@@ -5,3 +5,6 @@ __pycache__/
 
 # Artifacts generated
 *.dat
+
+# Visual Code artifacts
+.vscode/

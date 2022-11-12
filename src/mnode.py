@@ -13,13 +13,17 @@ class Mnode():
         hash2 = n2.getHash()
 
         hash_val = utils.digest(hash1+hash2, prefix)
-        return cls(hash_val, parent=None, left=n1, right=n2)
+        n = cls(hash_val, parent=None, left=n1, right=n2)
+        n1.setParent(n)
+        n2.setParent(n)
+        return n
 
     @classmethod
     def fromChildNode(cls, n1):
         hash_val = n1.getHash()
-
-        return cls(hash_val, parent=None, left=n1, right=None)
+        n = cls(hash_val, parent=None, left=n1, right=None)
+        n1.setParent(n)
+        return n
 
     def setHash(self, _hash):
         self.__hash = _hash

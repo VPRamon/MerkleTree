@@ -35,8 +35,8 @@ class Mtree():
 
                 self.tree[(lvl, i)] = Mnode.fromChildNodes(n1, n2, self.node_prefix)
                 
-                n1.setParent(self.tree[(lvl, i)])
-                n2.setParent(self.tree[(lvl, i)])
+                #n1.setParent(self.tree[(lvl, i)])
+                #n2.setParent(self.tree[(lvl, i)])
 
             if n % 2 != 0:
                 
@@ -44,7 +44,7 @@ class Mtree():
 
                 self.tree[(lvl, n//2)] = Mnode.fromChildNode(n1)
 
-                n1.setParent(self.tree[node_name])
+                #n1.setParent(self.tree[node_name])
 
             n = (n//2) + (0 if n%2==0 else 1)
             lvl += 1
@@ -69,14 +69,13 @@ class Mtree():
         lvl = 0
 
         while( lvl <= depth ):
-            print("LEVEL: ", lvl)
-            print("N_NODES: ", n_nodes)
 
             if(n_nodes % 2):
                 sibling = self.tree[(lvl, n_nodes-1)]
                 parent = sibling.getParent()
                 if(parent):
                     parent.setRightChild(node)
+                    parent.recomputeHash(self.node_prefix)
                 else:
                     parent = Mnode.fromChildNodes(sibling, node, self.node_prefix)
                     sibling.setParent(parent)

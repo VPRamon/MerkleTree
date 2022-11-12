@@ -1,6 +1,7 @@
 from hashlib import sha256
 import os
 import binascii
+import math
 
 def digest(x, prefix=None):
     """
@@ -57,3 +58,6 @@ def concatDocuments(src1, src2):
 def str2hex(s):
     s = s.encode('utf-8')
     return binascii.hexlify(bytes(s)).decode('utf-8')
+
+def getDepth(num_leaves):
+    return math.ceil(math.log(num_leaves))

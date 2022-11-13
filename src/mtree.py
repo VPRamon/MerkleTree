@@ -5,13 +5,10 @@ from hashlib import sha256
 class Mtree():
     def __init__(self):
         self.tree = {}
-        self.doc2node = {}
         self.doc_prefix = utils.readFile("src/utils/doc.pre")
         self.node_prefix = utils.readFile("src/utils/node.pre")
         self.root = None
-
         self.num_leaves = 0
-        self.num_lvls = 0
 
     def construct(self, path):
         """
@@ -19,25 +16,26 @@ class Mtree():
         @param self: The object pointer
         @param path: path to the list of documents
         """
+        self.tree.clear()
+        lvl = 0
         # Get leaf nodes
         for idx, doc in enumerate(utils.getAllDocuments(path)):
-            node_name = (0, idx)
+            node_name = (lvl, idx)
             hash_ = utils.digestDoc(doc, prefix=self.doc_prefix)
             self.tree[node_name] = Mnode(hash_)
-            self.doc2node[doc] = self.tree[node_name]
-            utils.saveNode(0, idx, hash_)
+            utils.saveNode(node_name, hash_)
 
         # Build tree bottom-up
         n = self.num_leaves = len(self.tree)
-        lvl = 1
+        lvl += 1
         while n > 1:
             for i in range(0, n//2):
                 n1 = self.tree[(lvl-1, 2*i  )]
                 n2 = self.tree[(lvl-1, 2*i+1)]
 
                 new_node = Mnode.fromChildNodes(n1, n2, self.node_prefix)
-                self.tree[(lvl, i)] =new_node
-                utils.saveNode(lvl, i, new_node.getHash())
+                self.tree[(lvl, i)] = new_node
+                utils.saveNode((lvl, i), new_node.getHash())
 
                 #n1.setParent(self.tree[(lvl, i)])
                 #n2.setParent(self.tree[(lvl, i)])
@@ -48,7 +46,7 @@ class Mtree():
 
                 new_node = Mnode.fromChildNode(n1)
                 self.tree[(lvl, n//2)] = new_node
-                utils.saveNode(lvl, n//2, new_node.getHash())
+                utils.saveNode((lvl, n//2), new_node.getHash())
 
                 #n1.setParent(self.tree[node_name])
 

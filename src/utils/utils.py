@@ -62,7 +62,9 @@ def str2hex(s):
 def getDepth(num_leaves):
     return math.ceil(math.log(num_leaves))
 
-def saveNode(lvl, pos, hash_):
+def saveNode(node_name, hash_):
+    lvl = node_name[0]
+    pos = node_name[1]
     doc_name = f"node{lvl}.{pos}.dat"
     f = open(f"nodes/{doc_name}", "w")
     f.write(hash_)

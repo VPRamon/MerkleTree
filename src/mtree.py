@@ -25,6 +25,7 @@ class Mtree():
             hash_ = utils.digestDoc(doc, prefix=self.doc_prefix)
             self.tree[node_name] = Mnode(hash_)
             self.doc2node[doc] = self.tree[node_name]
+            utils.saveNode(0, idx, hash_)
 
         # Build tree bottom-up
         n = self.num_leaves = len(self.tree)
@@ -34,8 +35,10 @@ class Mtree():
                 n1 = self.tree[(lvl-1, 2*i  )]
                 n2 = self.tree[(lvl-1, 2*i+1)]
 
-                self.tree[(lvl, i)] = Mnode.fromChildNodes(n1, n2, self.node_prefix)
-                
+                new_node = Mnode.fromChildNodes(n1, n2, self.node_prefix)
+                self.tree[(lvl, i)] =new_node
+                utils.saveNode(lvl, i, new_node.getHash())
+
                 #n1.setParent(self.tree[(lvl, i)])
                 #n2.setParent(self.tree[(lvl, i)])
 
@@ -43,7 +46,9 @@ class Mtree():
                 
                 n1 = self.tree[(lvl-1, n-1)]
 
-                self.tree[(lvl, n//2)] = Mnode.fromChildNode(n1)
+                new_node = Mnode.fromChildNode(n1)
+                self.tree[(lvl, n//2)] = new_node
+                utils.saveNode(lvl, n//2, new_node.getHash())
 
                 #n1.setParent(self.tree[node_name])
 
@@ -116,7 +121,6 @@ class Mtree():
             node = node.getParent()
         self.root.recomputeHash(self.node_prefix)
 
-    
     def getPoM(self, doc_pos):
         """Proof of Membership"""
         pom = []

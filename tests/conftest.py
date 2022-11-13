@@ -3,6 +3,7 @@ import pytest
 
 DIR = os.path.dirname(__file__)
 DOCS_DIR = os.path.join(DIR, '../documents')
+NODES_DIR = os.path.join(DIR, '../nodes')
 
 def pytest_addoption(parser):
     parser.addoption("--keep_artifacts", action="store_const", const=True)
@@ -18,11 +19,26 @@ class TestHelpers:
         return documents
 
     @staticmethod
+    def getNodes():
+        nodes = os.listdir(NODES_DIR)
+        # README.md file should not be considered a node
+        nodes.remove('README.md')
+        return nodes
+
+    @staticmethod
     def clearDocs():
         documents = TestHelpers.getDocs()
         for doc in documents:
             # print("removing: ",doc)
             doc_dir = os.path.join(DOCS_DIR, doc)
+            os.remove(doc_dir)
+
+    @staticmethod
+    def clearNodes():
+        nodes = TestHelpers.getNodes()
+        for node in nodes:
+            # print("removing: ",doc)
+            doc_dir = os.path.join(NODES_DIR, node)
             os.remove(doc_dir)
 
     @staticmethod
@@ -41,8 +57,10 @@ class TestHelpers:
 def TEARDOWN_FIXTURE( request ):
 
     TestHelpers.clearDocs()
+    TestHelpers.clearNodes()
 
     yield {"TestHelpers" : TestHelpers}
 
     if not request.config.getoption("--keep_artifacts"):
         TestHelpers.clearDocs()
+        TestHelpers.clearNodes()

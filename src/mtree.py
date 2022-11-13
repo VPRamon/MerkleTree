@@ -1,5 +1,6 @@
 import src.utils.utils as utils
 from src.mnode import Mnode
+from hashlib import sha256
 
 class Mtree():
     def __init__(self):
@@ -137,6 +138,45 @@ class Mtree():
 
         pom.append( (lvl, 0, self.root.getHash()) )
         return pom
+
+    def verifyPoM(self, doc_path, doc_pos, pom = None):
+
+        if(pom == None):
+            pom = self.getPoM(doc_pos)
+
+        # We start with the hash of the document
+        current_hash = utils.digestDoc(doc_path, prefix=self.doc_prefix)
+
+        is_valid = True
+        pos = doc_pos
+        lvl = 0
+        parent = self.tree[(1,pos//2)]
+
+        # Repeat process until we reach the root node or a validation failure
+        while(parent and is_valid):
+
+            has_sibling = parent.getLeftChild() and parent.getRightChild()
+
+            if(has_sibling):
+                # Decide the order of concatenation based on nodes position (prefix + LeftNode + RightNode)
+                sibling_hash = pom[lvl][-1]
+                if pos%2:
+                    expected_parent_hash = sha256( bytes(( self.node_prefix + sibling_hash + current_hash ).encode('utf-8')) ).hexdigest()
+                else:
+                    expected_parent_hash = sha256( bytes(( self.node_prefix + current_hash + sibling_hash ).encode('utf-8')) ).hexdigest()
+
+                # Computed hash is expected to be equal to parent hash
+                #is_valid = parent.getHash() == expected_parent_hash
+                assert parent.getHash() == expected_parent_hash
+
+                current_hash = expected_parent_hash
+                lvl += 1
+
+            parent = parent.getParent()
+            pos //= 2
+
+        return is_valid
+
 
 
     """

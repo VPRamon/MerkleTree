@@ -38,6 +38,8 @@ def test_pom_doc_1_of_4(setup_test):
     ]
 
     assert pom == EXPECTED_POM
+    assert mtree.verifyPoM('documents/doc0.dat', 0, pom)
+    assert mtree.verifyPoM('documents/doc0.dat', 0)
 
 def test_pom_doc_2_of_4(setup_test):
 
@@ -51,6 +53,8 @@ def test_pom_doc_2_of_4(setup_test):
     ]
 
     assert pom == EXPECTED_POM
+    assert mtree.verifyPoM('documents/doc1.dat', 1, pom)
+    assert mtree.verifyPoM('documents/doc1.dat', 1)
 
 def test_pom_doc_3_of_4(setup_test):
 
@@ -64,6 +68,8 @@ def test_pom_doc_3_of_4(setup_test):
     ]
 
     assert pom == EXPECTED_POM
+    assert mtree.verifyPoM('documents/doc2.dat', 2, pom)
+    assert mtree.verifyPoM('documents/doc2.dat', 2)
 
 def test_pom_doc_4_of_4(setup_test):
 
@@ -77,3 +83,5 @@ def test_pom_doc_4_of_4(setup_test):
     ]
 
     assert pom == EXPECTED_POM
+    assert mtree.verifyPoM('documents/doc3.dat', 3, pom)
+    assert mtree.verifyPoM('documents/doc3.dat', 3)

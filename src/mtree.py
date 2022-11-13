@@ -116,33 +116,27 @@ class Mtree():
         self.root.recomputeHash(self.node_prefix)
 
     
-    def getPoM(self, doc, doc_pos):
+    def getPoM(self, doc_pos):
         """Proof of Membership"""
-        prev_node = self.doc2node[doc]
-        node = self.doc2node[doc].getParent()
-        lvl = 0
+        pom = []
         pos = doc_pos
-        res = []
-        while node is not None:
-            #print(lvl, pos)
-            left = node.getLeftChild()
-            right = node.getRightChild()
-
-            hash_pos = (pos-1) if (pos % 2) else (pos+1)
-            if left == prev_node and right is not None:
-                res.append((lvl, hash_pos, right.getHash()))
-            elif right == prev_node:
-                res.append((lvl, hash_pos, left.getHash()))
-
-            prev_node = node
-            node = node.getParent()
-            print(prev_node, node)
-            lvl += 1
-            pos = pos//2
+        lvl = 0
         
-        res.append((self.num_lvls-1, 0, self.root.getHash()))
+        parent = self.tree[(1,doc_pos//2)]
+        while(parent):
+            sibling = parent.getLeftChild() if pos%2 else parent.getRightChild()
+            if sibling:
+                if pos%2:
+                    pom.append( (lvl, pos-1, sibling.getHash()) )
+                else:
+                    pom.append( (lvl, pos+1, sibling.getHash()) )
 
-        return res
+            parent = parent.getParent()
+            pos //= 2
+            lvl += 1
+
+        pom.append( (lvl, 0, self.root.getHash()) )
+        return pom
 
 
     """

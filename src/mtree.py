@@ -61,7 +61,7 @@ class Mtree():
     def addDocument(self, path, content):
         id_ = self.num_leaves
         docName = 'doc'+str(id_)+'.dat'
-        f = open(f"documents/{docName}", "w")
+        f = open(f"{path}/{docName}", "w")
         f.write(content)
         f.close()
 
@@ -76,11 +76,12 @@ class Mtree():
 
         while( lvl <= depth ):
 
-            if(n_nodes % 2):
+            if(n_nodes % 2): # if not power of 2
                 sibling = self.tree[(lvl, n_nodes-1)]
                 parent = sibling.getParent()
                 if(parent):
                     parent.setRightChild(node)
+                    node.setParent(parent)
                     parent.recomputeHash(self.node_prefix)
                 else:
                     parent = Mnode.fromChildNodes(sibling, node, self.node_prefix)
@@ -102,6 +103,7 @@ class Mtree():
             node = parent
 
         self.num_leaves += 1
+        self.doc2node[f"{path}/{docName}"] = self.tree[(0, self.num_leaves-1)]
 
 
     def modifyDocument(self, doc, new_content):
@@ -109,7 +111,7 @@ class Mtree():
         f.write(new_content)
         f.close()
 
-        node = self.doc2node[doc]
+        node = self.doc2node[f"documents/{doc}"]
 
         # Recompute document hash
         hash_val = utils.digestDoc(f"documents/{doc}", prefix=self.doc_prefix)
@@ -143,13 +145,23 @@ class Mtree():
         pom.append( (lvl, 0, self.root.getHash()) )
         return pom
 
+    def savePoM(self, pos, path='pom.dat'):
+        pom = self.getPoM(pos)
+        npre = utils.str2hex(self.node_prefix)
+        dpre = utils.str2hex(self.doc_prefix)
+        f = open(path, 'w')
+        f.write(f"MerkleTree:sha1:{npre}:{dpre}:{self.num_leaves}:{self.num_lvls}:{self.root.getHash()}\n")
+        f.write('\n'.join([' '.join([str(tt) for tt in t]) for t in pom]))
+        f.close()
+
+
     def verifyPoM(self, doc_path, doc_pos, pom = None):
 
         if(pom == None):
             pom = self.getPoM(doc_pos)
 
         # We start with the hash of the document
-        current_hash = utils.digestDoc(doc_path, prefix=self.doc_prefix)
+        current_hash = utils.digestDoc(f"documents/{doc_path}", prefix=self.doc_prefix)
 
         is_valid = True
         pos = doc_pos
@@ -171,7 +183,8 @@ class Mtree():
 
                 # Computed hash is expected to be equal to parent hash
                 #is_valid = parent.getHash() == expected_parent_hash
-                assert parent.getHash() == expected_parent_hash
+                if parent.getHash() != expected_parent_hash:
+                    return False
 
                 current_hash = expected_parent_hash
                 lvl += 1

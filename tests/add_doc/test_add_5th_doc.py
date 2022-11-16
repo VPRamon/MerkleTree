@@ -49,7 +49,7 @@ def test_add_5th_doc(setup_test):
     validate_4_docs_mtree(docs[:4], mtree)
 
     # Create new doc
-    mtree.addDocument("",'hello 4')
+    mtree.addDocument("documents",'hello 4')
 
     # Validate subtree (docs from 0 to 3)
     validate_5_docs_mtree(docs, mtree)
